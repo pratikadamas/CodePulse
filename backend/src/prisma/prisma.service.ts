@@ -19,6 +19,7 @@ import {
   DeadlockResolverService,
   type DeadlockRetryOptions,
 } from '../common/monitoring/deadlock-resolver.service';
+import { QueryAnalyzerService } from './query-analyzer.service';
 
 const DEFAULT_SLOW_QUERY_THRESHOLD_MS = 200;
 
@@ -64,6 +65,8 @@ export class PrismaService
     public readonly replicaRouter?: ReplicaRouter,
     @Optional()
     public readonly deadlockResolver?: DeadlockResolverService,
+    @Optional()
+    public readonly queryAnalyzer?: QueryAnalyzerService,
   ) {
     const dynamicCreds = vaultService?.getCurrentDatabaseCredential();
     const baseDbUrl = process.env.DATABASE_URL;
@@ -290,5 +293,14 @@ export class PrismaService
       return this.deadlockResolver.executeWithDeadlockRetry(() => runTx(), options);
     }
     return runTx();
+  }
+
+  /**
+   * Evaluates query execution plan costs and unindexed table scan guardrails in CI / staging.
+   * Zero overhead in production mode.
+   */
+  async analyzeQueryPlan(model: string, args: any) {
+    if (!this.queryAnalyzer || !this.queryAnalyzer.isEnabled()) return null;
+    return this.queryAnalyzer.interceptFindMany(model, args, this);
   }
 }

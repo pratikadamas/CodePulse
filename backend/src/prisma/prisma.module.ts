@@ -6,6 +6,7 @@ import { ShardingRouterService } from './sharding-router.service';
 import { TenantShardingService } from './tenant-sharding.service';
 import { TenantInterceptor } from '../common/interceptors/tenant.interceptor';
 import { SecurityModule } from '../modules/security/security.module';
+import { QueryAnalyzerService } from './query-analyzer.service';
 
 @Global()
 @Module({
@@ -17,6 +18,7 @@ import { SecurityModule } from '../modules/security/security.module';
     ShardingRouterService,
     TenantShardingService,
     TenantInterceptor,
+    QueryAnalyzerService,
   ],
   exports: [
     PrismaService,
@@ -25,6 +27,7 @@ import { SecurityModule } from '../modules/security/security.module';
     ShardingRouterService,
     TenantShardingService,
     TenantInterceptor,
+    QueryAnalyzerService,
   ],
 })
 export class PrismaModule {}
